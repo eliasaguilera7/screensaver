@@ -18,36 +18,65 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
   let screenWakeLock = null;
+  let wakeLockRequestInFlight = null;
+  let wakeLockUserGestureSeen = false;
 
-  async function requestScreenWakeLock() {
-    if (!('wakeLock' in navigator) || document.visibilityState !== 'visible') return;
-    if (screenWakeLock && !screenWakeLock.released) return;
+  const wakeLockSupported = 'wakeLock' in navigator && typeof navigator.wakeLock.request === 'function';
+  console.info(`[Safari] Wake Lock ${wakeLockSupported ? 'supported' : 'not supported'}`);
 
-    try {
-      screenWakeLock = await navigator.wakeLock.request('screen');
-      screenWakeLock.addEventListener('release', () => {
+  async function requestScreenWakeLock(reason = 'user gesture') {
+    if (!wakeLockSupported) return false;
+    if (document.visibilityState !== 'visible') return false;
+    if (!wakeLockUserGestureSeen) return false;
+    if (screenWakeLock && !screenWakeLock.released) return true;
+    if (wakeLockRequestInFlight) return wakeLockRequestInFlight;
+
+    wakeLockRequestInFlight = navigator.wakeLock.request('screen')
+      .then((sentinel) => {
+        screenWakeLock = sentinel;
+        console.info(`[Safari] Wake Lock active (${reason})`);
+        sentinel.addEventListener('release', () => {
+          console.info('[Safari] Wake Lock released');
+          if (screenWakeLock === sentinel) screenWakeLock = null;
+        }, { once: true });
+        return true;
+      })
+      .catch((error) => {
         screenWakeLock = null;
-      }, { once: true });
-    } catch (error) {
-      // Wake Lock can be unavailable or denied by Safari/iPadOS.
-      screenWakeLock = null;
-      console.warn('Screen Wake Lock is unavailable.', error);
-    }
+        console.warn('[Safari] Wake Lock error', error);
+        return false;
+      })
+      .finally(() => {
+        wakeLockRequestInFlight = null;
+      });
+
+    return wakeLockRequestInFlight;
   }
 
+  function handleWakeLockUserGesture() {
+    wakeLockUserGestureSeen = true;
+    requestScreenWakeLock('user gesture');
+  }
+
+  document.addEventListener('click', handleWakeLockUserGesture, { passive: true });
+  document.addEventListener('touchstart', handleWakeLockUserGesture, { passive: true });
+  document.addEventListener('pointerdown', handleWakeLockUserGesture, { passive: true });
+
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') requestScreenWakeLock();
+    if (document.visibilityState === 'visible') requestScreenWakeLock('visibilitychange');
   });
 
-  let wakeLockInteractionAttempted = false;
-  const retryWakeLockOnInteraction = () => {
-    if (wakeLockInteractionAttempted) return;
-    wakeLockInteractionAttempted = true;
-    requestScreenWakeLock();
+  document.addEventListener('fullscreenchange', () => {
+    if (document.fullscreenElement) requestScreenWakeLock('fullscreenchange');
+  });
+
+  const wakeLockDisplayMode = window.matchMedia('(display-mode: standalone)');
+  const handlePwaModeChange = () => {
+    if (wakeLockDisplayMode.matches) requestScreenWakeLock('PWA mode');
   };
-  document.addEventListener('touchstart', retryWakeLockOnInteraction, { passive: true });
-  document.addEventListener('pointerdown', retryWakeLockOnInteraction, { passive: true });
-  requestScreenWakeLock();
+  if (wakeLockDisplayMode.addEventListener) wakeLockDisplayMode.addEventListener('change', handlePwaModeChange);
+  else if (wakeLockDisplayMode.addListener) wakeLockDisplayMode.addListener(handlePwaModeChange);
+  handlePwaModeChange();
 
   let dots = [];
   const dotsContainer = $('.slider-dots');
