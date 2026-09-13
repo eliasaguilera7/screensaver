@@ -20,6 +20,9 @@
   let screenWakeLock = null;
   let wakeLockRequestInFlight = null;
   let wakeLockUserGestureSeen = false;
+  const startExperience = $('#startExperience');
+  const isAppleTouchDevice = /iPhone|iPad|iPod/.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
   const wakeLockSupported = 'wakeLock' in navigator && typeof navigator.wakeLock.request === 'function';
   console.info(`[Safari] Wake Lock ${wakeLockSupported ? 'supported' : 'not supported'}`);
@@ -35,9 +38,11 @@
       .then((sentinel) => {
         screenWakeLock = sentinel;
         console.info(`[Safari] Wake Lock active (${reason})`);
+        if (startExperience) startExperience.hidden = true;
         sentinel.addEventListener('release', () => {
           console.info('[Safari] Wake Lock released');
           if (screenWakeLock === sentinel) screenWakeLock = null;
+          if (startExperience && isAppleTouchDevice) startExperience.hidden = false;
         }, { once: true });
         return true;
       })
@@ -56,6 +61,14 @@
   function handleWakeLockUserGesture() {
     wakeLockUserGestureSeen = true;
     requestScreenWakeLock('user gesture');
+  }
+
+  if (startExperience && isAppleTouchDevice && wakeLockSupported) {
+    startExperience.hidden = false;
+    startExperience.addEventListener('click', () => {
+      wakeLockUserGestureSeen = true;
+      requestScreenWakeLock('Start button');
+    });
   }
 
   document.addEventListener('click', handleWakeLockUserGesture, { passive: true });

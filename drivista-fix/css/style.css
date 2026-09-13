@@ -5025,6 +5025,23 @@ body{
   overflow:hidden !important;
 }
 
+.experience-start{
+  position:fixed;
+  left:50%;
+  bottom:max(24px, env(safe-area-inset-bottom));
+  z-index:20;
+  transform:translateX(-50%);
+  border:1px solid rgba(255,255,255,.35);
+  border-radius:999px;
+  padding:12px 18px;
+  color:#fff;
+  background:rgba(8,10,18,.72);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  font:500 14px/1 Manrope, sans-serif;
+}
+.experience-start[hidden]{display:none !important;}
+
 .stage{
   width:100vw !important;
   height:100dvh !important;
