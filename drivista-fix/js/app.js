@@ -78,6 +78,10 @@
           const response = await fetch(url, { method: 'HEAD', cache: 'no-store' });
           if (!response.ok) continue;
 
+          const contentType = (response.headers.get('content-type') || '').toLowerCase();
+          const expectedType = VIDEO_EXTENSIONS.has(extension) ? 'video/' : 'image/';
+          if (!contentType.startsWith(expectedType)) continue;
+
           foundFiles.push({
             url: `${url}?v=${MEDIA_CACHE_VERSION}`,
             type: VIDEO_EXTENSIONS.has(extension) ? 'video' : 'image'
