@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+  <meta name="theme-color" content="#0a0b0d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>DRIVISTA — Reserve Your Ride</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="rhye-cursor" id="rhyeCursor" aria-hidden="true">
+    <svg class="rhye-cursor-svg" width="60" height="60" viewBox="0 0 50 50" aria-hidden="true">
+      <circle class="rhye-cursor-inner" cx="25" cy="25" r="24"></circle>
+      <circle class="rhye-cursor-outer" cx="25" cy="25" r="24"></circle>
+    </svg>
+  </div>
+  <main class="stage" aria-label="DRIVISTA ride reservation">
+    <div class="background-slider" aria-hidden="true">
+      <canvas class="distortion-canvas" id="distortionCanvas"></canvas>
+      <div class="image-overlay"></div>
+    </div>
+    <header class="brandbar">
+      <div class="top-actions">
+        <div class="contact-menu-wrap">
+              </span>
+            </a>
+          </div>
+
+        <div class="weather-card" aria-label="Current local weather, date and time">
+          <div class="weather-location">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11Z"/><circle cx="12" cy="10" r="2.2"/></svg>
+            <span id="clockLocation">The Crossings</span>
+          </div>
+          <div class="weather-main">
+            <div class="weather-temperature-row">
+              <strong id="weatherTemp" class="weather-temp">--<span>°</span></strong>
+            </div>
+            <div class="weather-condition-row">
+              <span id="weatherEmoji" class="weather-emoji" aria-hidden="true">☁️</span>
+              <span id="weatherCondition">Weather</span>
+            </div>
+            <div id="weatherHighLow" class="weather-high-low">H:--°F · L:--°F</div>
+          </div>
+          <time id="clockTime" class="weather-time">
+            <span id="clockTimeMain">--:--</span><span id="clockPeriod" class="clock-period"></span>
+          </time>
+          <div id="clockDate" class="weather-date">Loading date…</div>
+        </div>
+      </div>
+    </header>
+
+    </div>
+
+    <div class="slider-dots slider__dots js-slider__dots" aria-label="Background image slider">
+      <button type="button" class="slider__dot slider__dot_active" aria-label="Show image 1" aria-current="true">
+        <svg class="svg-circle" viewBox="0 0 152 152" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true">
+          <g fill="none" fill-rule="evenodd"><g transform="translate(-134.000000, -98.000000)">
+            <path class="circle" d="M135,174a75,75 0 1,0 150,0a75,75 0 1,0 -150,0"></path>
+          </g></g>
+        </svg>
+      </button>
+      <button type="button" class="slider__dot" aria-label="Show image 2">
+        <svg class="svg-circle" viewBox="0 0 152 152" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true">
+          <g fill="none" fill-rule="evenodd"><g transform="translate(-134.000000, -98.000000)">
+            <path class="circle" d="M135,174a75,75 0 1,0 150,0a75,75 0 1,0 -150,0"></path>
+          </g></g>
+        </svg>
+      </button>
+      <button type="button" class="slider__dot" aria-label="Show image 3">
+        <svg class="svg-circle" viewBox="0 0 152 152" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true">
+          <g fill="none" fill-rule="evenodd"><g transform="translate(-134.000000, -98.000000)">
+            <path class="circle" d="M135,174a75,75 0 1,0 150,0a75,75 0 1,0 -150,0"></path>
+          </g></g>
+        </svg>
+      </button>
+      <button type="button" class="slider__dot" aria-label="Show image 4">
+        <svg class="svg-circle" viewBox="0 0 152 152" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true">
+          <g fill="none" fill-rule="evenodd"><g transform="translate(-134.000000, -98.000000)">
+            <path class="circle" d="M135,174a75,75 0 1,0 150,0a75,75 0 1,0 -150,0"></path>
+          </g></g>
+        </svg>
+      </button>
+      <button type="button" class="slider__dot" aria-label="Show image 5">
+        <svg class="svg-circle" viewBox="0 0 152 152" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true">
+          <g fill="none" fill-rule="evenodd"><g transform="translate(-134.000000, -98.000000)">
+            <path class="circle" d="M135,174a75,75 0 1,0 150,0a75,75 0 1,0 -150,0"></path>
+          </g></g>
+        </svg>
+      </button>
+      <button type="button" class="slider__dot" aria-label="Show image 6">
+        <svg class="svg-circle" viewBox="0 0 152 152" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true">
+          <g fill="none" fill-rule="evenodd"><g transform="translate(-134.000000, -98.000000)">
+            <path class="circle" d="M135,174a75,75 0 1,0 150,0a75,75 0 1,0 -150,0"></path>
+          </g></g>
+        </svg>
+      </button>
+      <button type="button" class="slider__dot" aria-label="Show image 7">
+        <svg class="svg-circle" viewBox="0 0 152 152" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true">
+          <g fill="none" fill-rule="evenodd"><g transform="translate(-134.000000, -98.000000)">
+            <path class="circle" d="M135,174a75,75 0 1,0 150,0a75,75 0 1,0 -150,0"></path>
+          </g></g>
+        </svg>
+      </button>
+      <button type="button" class="slider__dot" aria-label="Show image 8">
+        <svg class="svg-circle" viewBox="0 0 152 152" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true">
+          <g fill="none" fill-rule="evenodd"><g transform="translate(-134.000000, -98.000000)">
+            <path class="circle" d="M135,174a75,75 0 1,0 150,0a75,75 0 1,0 -150,0"></path>
+          </g></g>
+        </svg>
+      </button>
+      <button type="button" class="slider__dot" aria-label="Show image 9">
+        <svg class="svg-circle" viewBox="0 0 152 152" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true">
+          <g fill="none" fill-rule="evenodd"><g transform="translate(-134.000000, -98.000000)">
+            <path class="circle" d="M135,174a75,75 0 1,0 150,0a75,75 0 1,0 -150,0"></path>
+          </g></g>
+        </svg>
+      </button>
+      <button type="button" class="slider__dot" aria-label="Show image 10">
+        <svg class="svg-circle" viewBox="0 0 152 152" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true">
+          <g fill="none" fill-rule="evenodd"><g transform="translate(-134.000000, -98.000000)">
+            <path class="circle" d="M135,174a75,75 0 1,0 150,0a75,75 0 1,0 -150,0"></path>
+          </g></g>
+        </svg>
+      </button>
+    </div>
+  </dialog>
+<script src="js/vendor.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
