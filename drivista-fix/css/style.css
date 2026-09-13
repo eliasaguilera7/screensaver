@@ -4862,13 +4862,13 @@ input,select,button,a{touch-action:manipulation}
   -webkit-backdrop-filter:blur(18px) saturate(120%) !important;
   box-shadow:0 24px 60px rgba(0,0,0,.30) !important;
   color:#fff !important;
-  text-align:center !important;
+  text-align:right !important;
 }
 
 .weather-location{
   display:flex !important;
   align-items:center !important;
-  justify-content:center !important;
+  justify-content:flex-end !important;
   gap:9px !important;
   font-size:24px !important;
   line-height:1.1 !important;
@@ -4882,7 +4882,7 @@ input,select,button,a{touch-action:manipulation}
 }
 .weather-main{margin-top:24px !important}
 .weather-temperature-row{
-  justify-content:center !important;
+  justify-content:flex-end !important;
   align-items:flex-start !important;
 }
 .weather-temp{
@@ -4902,7 +4902,7 @@ input,select,button,a{touch-action:manipulation}
   margin-top:18px !important;
   display:flex !important;
   align-items:center !important;
-  justify-content:center !important;
+  justify-content:flex-end !important;
   gap:9px !important;
   font-size:24px !important;
   line-height:1.1 !important;
@@ -4916,13 +4916,13 @@ input,select,button,a{touch-action:manipulation}
   line-height:1.2 !important;
   font-weight:400 !important;
   color:rgba(255,255,255,.84) !important;
-  text-align:center !important;
+  text-align:right !important;
 }
 .weather-time{
   margin-top:30px !important;
   display:flex !important;
   align-items:baseline !important;
-  justify-content:center !important;
+  justify-content:flex-end !important;
   gap:7px !important;
   font-size:67px !important;
   line-height:.85 !important;
@@ -4941,7 +4941,7 @@ input,select,button,a{touch-action:manipulation}
   line-height:1.2 !important;
   font-weight:400 !important;
   color:rgba(255,255,255,.70) !important;
-  text-align:center !important;
+  text-align:right !important;
 }
 
 .weather-high-low{font-size:18px !important}
