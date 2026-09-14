@@ -171,7 +171,7 @@
   }
 
   rebuildDots(MEDIA_ITEMS);
-  const TRANSITION_DURATION_MS = 1200;
+  const TRANSITION_DURATION_MS = 1500;
   const TRANSITION_EASE = 'power3.out';  
   const EFFECT_FACTOR = 0.2;
 
@@ -361,6 +361,32 @@
     let transitionToken = 0;
     let transitionTimer = null;
     let transitioning = false;
+    let liquidAnimationFrame = null;
+
+    const liquidTurbulence = $('#liquid-turbulence');
+    const stopLiquidMotion = () => {
+      if (liquidAnimationFrame !== null) {
+        cancelAnimationFrame(liquidAnimationFrame);
+        liquidAnimationFrame = null;
+      }
+      liquidTurbulence?.setAttribute('baseFrequency', '0.009 0.055');
+    };
+    const startLiquidMotion = () => {
+      if (!liquidTurbulence) return;
+      stopLiquidMotion();
+      const startedAt = performance.now();
+      const animateLiquidMotion = (now) => {
+        const elapsed = now - startedAt;
+        const progress = Math.min(1, elapsed / TRANSITION_DURATION_MS);
+        const wave = Math.sin(progress * Math.PI);
+        const frequencyX = 0.009 + wave * 0.036;
+        const frequencyY = 0.055 - wave * 0.046;
+        liquidTurbulence.setAttribute('baseFrequency', `${frequencyX.toFixed(4)} ${frequencyY.toFixed(4)}`);
+        if (progress < 1) liquidAnimationFrame = requestAnimationFrame(animateLiquidMotion);
+        else stopLiquidMotion();
+      };
+      liquidAnimationFrame = requestAnimationFrame(animateLiquidMotion);
+    };
 
     const layers = [
       { root: document.createElement('div'), media: null, itemIndex: -1 },
@@ -508,10 +534,19 @@
           transitionTimer = null;
         }
 
-        previousLayer.root.classList.remove('is-active');
+        previousLayer.root.classList.add('liquid-out');
+        targetLayer.root.classList.add('liquid-in');
         targetLayer.root.style.visibility = 'visible';
-        targetLayer.root.classList.add('is-active');
+        startLiquidMotion();
+
+        // Start the CSS liquid motion only after the preloaded layer is visible.
+        requestAnimationFrame(() => {
+          if (token !== transitionToken) return;
+          previousLayer.root.classList.remove('is-active');
+          targetLayer.root.classList.add('is-active');
+        });
         transitionTimer = window.setTimeout(() => {
+          stopLiquidMotion();
           if (previousLayer.media?.tagName === 'VIDEO') {
             previousLayer.media.pause();
             previousLayer.media.currentTime = 0;
@@ -519,14 +554,16 @@
           previousLayer.root.replaceChildren();
           previousLayer.media = null;
           previousLayer.itemIndex = -1;
+          previousLayer.root.classList.remove('liquid-out', 'liquid-in');
           previousLayer.root.style.visibility = 'hidden';
+          targetLayer.root.classList.remove('liquid-out', 'liquid-in');
           activeLayerIndex = targetLayerIndex;
           activeIndex = index;
           transitioning = false;
           transitionTimer = null;
           preloadNext();
           if (typeof onComplete === 'function') onComplete(index);
-        }, 1200);
+        }, TRANSITION_DURATION_MS);
       };
 
       const activateWhenPlaying = () => {
@@ -1111,8 +1148,9 @@
 
       const data = await response.json();
       const properties = data.features?.[0]?.properties || {};
-      const locationName = properties.city || properties.town || properties.village ||
-        properties.municipality || properties.county || properties.state;
+      const locationName = properties.suburb || properties.neighbourhood || properties.district ||
+        properties.city || properties.town || properties.village || properties.municipality ||
+        properties.county || properties.state;
 
       if (typeof locationName === 'string' && locationName.trim()) {
         clockLocation.textContent = locationName.trim();
@@ -1140,6 +1178,11 @@
     }
 
     navigator.geolocation.getCurrentPosition(async (position) => {
+      console.info('Device location received.', {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        accuracyMeters: position.coords.accuracy
+      });
       activeCoordinates = {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude
@@ -1152,9 +1195,9 @@
     }, () => {
       useFallbackLocation();
     }, {
-      enableHighAccuracy: false,
-      timeout: 10000,
-      maximumAge: 300000
+      enableHighAccuracy: true,
+      timeout: 20000,
+      maximumAge: 60000
     });
   }
 

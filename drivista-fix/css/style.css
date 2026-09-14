@@ -4865,6 +4865,42 @@ input,select,button,a{touch-action:manipulation}
   text-align:right !important;
 }
 
+/* Liquid-glass edge treatment for the weather card. */
+.weather-card{
+  position:relative !important;
+  isolation:isolate;
+  overflow:hidden;
+  border:1px solid transparent !important;
+  background:rgba(8,10,18,.42) !important;
+}
+.weather-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  border-radius:inherit;
+  padding:1px;
+  background:linear-gradient(155deg, rgba(255,255,255,.88), rgba(255,255,255,.08) 28%, rgba(122,183,224,.24) 70%, rgba(255,255,255,.82));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  opacity:.9;
+  pointer-events:none;
+}
+.weather-card::after{
+  content:"";
+  position:absolute;
+  inset:1px;
+  z-index:-1;
+  border-radius:inherit;
+  background:none;
+  pointer-events:none;
+}
+.weather-card > *{
+  position:relative;
+  z-index:1;
+}
+
 .weather-location{
   display:flex !important;
   align-items:center !important;
@@ -4987,15 +5023,36 @@ input,select,button,a{touch-action:manipulation}
   visibility:hidden;
   opacity:0;
   backface-visibility:hidden;
-  transform:translateZ(0);
+  transform:translate3d(0,0,0);
   will-change:opacity;
-  transition:opacity 1.2s ease, visibility 0s linear 1.2s;
+  transition:opacity 1.5s ease, transform 1.5s cubic-bezier(.22,.61,.36,1), filter 1.5s ease, visibility 0s linear 1.5s;
   pointer-events:none;
 }
 .media-layer.is-active{
   visibility:visible;
   opacity:1;
-  transition:opacity 1.2s ease;
+  transition:opacity 1.5s ease, transform 1.5s cubic-bezier(.22,.61,.36,1), filter 1.5s ease;
+}
+
+/* Lightweight liquid motion for iPad/Safari. It runs only during a media swap. */
+.media-layer.liquid-out{
+  filter:url(#liquid-distortion) blur(3px);
+  transform:translate3d(0,0,0) scale(1.08) skewX(-2deg);
+}
+.media-layer.liquid-in{
+  filter:url(#liquid-distortion) blur(4px);
+  transform:translate3d(0,0,0) scale(1.075) skewX(2deg);
+}
+.media-layer.liquid-in.is-active{
+  filter:blur(0);
+  transform:translate3d(0,0,0) scale(1) skewX(0);
+}
+.liquid-filter-defs{
+  position:absolute;
+  width:0;
+  height:0;
+  overflow:hidden;
+  pointer-events:none;
 }
 .media-layer > img,
 .media-layer > video{
@@ -5009,10 +5066,10 @@ input,select,button,a{touch-action:manipulation}
   visibility:visible !important;
   opacity:1 !important;
   transition:none !important;
-  filter:blur(1px) saturate(.95) contrast(1.04);
+  filter:none;
   background:#000;
   backface-visibility:hidden;
-  transform:translateZ(0);
+  transform:translate3d(0,0,0);
   will-change:opacity;
 }
 
@@ -5031,14 +5088,49 @@ body{
   bottom:max(24px, env(safe-area-inset-bottom));
   z-index:20;
   transform:translateX(-50%);
-  border:1px solid rgba(255,255,255,.35);
+  border:1px solid rgba(255,255,255,.28);
   border-radius:999px;
   padding:12px 18px;
   color:#fff;
-  background:rgba(8,10,18,.72);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
+  background-color:rgba(255,255,255,.055) !important;
+  background-image:none !important;
+  backdrop-filter:blur(8px) saturate(145%);
+  -webkit-backdrop-filter:blur(8px) saturate(145%);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,.18),
+    inset 0 5px 10px rgba(255,255,255,.035);
+  outline:none;
+  overflow:hidden;
+  cursor:pointer;
+  transition:background-color .3s ease, border-color .3s ease, transform .3s ease;
   font:500 14px/1 Manrope, sans-serif;
+}
+.experience-start::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  z-index:0;
+  padding:1px;
+  border-radius:inherit;
+  background:linear-gradient(135deg, rgba(255,255,255,.55), rgba(255,255,255,.18) 45%, rgba(255,255,255,.28));
+  filter:url(#liquid-refraction) brightness(1.05);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  pointer-events:none;
+}
+.experience-start:hover{
+  background-color:rgba(255,255,255,.075) !important;
+  border-color:rgba(255,255,255,.34);
+}
+.experience-start:active{
+  transform:translateX(-50%) translateY(1px);
+  background-color:rgba(255,255,255,.045) !important;
+}
+.experience-start span{
+  position:relative;
+  z-index:2;
+  text-shadow:0 1px 2px rgba(0,0,0,.2);
 }
 .experience-start[hidden]{display:none !important;}
 
