@@ -1743,7 +1743,7 @@ input,select,button,a{touch-action:manipulation}
     box-shadow:0 15px 38px rgba(0,0,0,.18) !important;
     backdrop-filter:blur(10px) saturate(108%) !important;
     -webkit-backdrop-filter:blur(10px) saturate(108%) !important;
-    text-align:center !important;
+    text-align:right !important;
   }
   .weather-location{
     justify-content:center !important;
@@ -5195,10 +5195,41 @@ body{
     width:100% !important;
     box-sizing:border-box !important;
     margin-top:11px !important;
-    padding-top:9px !important;
-    border-top:1px solid rgba(255,255,255,.18) !important;
+    padding-top:0 !important;
+    border-top:0 !important;
     font-size:12px !important;
     letter-spacing:.02em !important;
-    text-align:center !important;
+    text-align:right !important;
+  }
+}
+
+/* Keep the same compact hierarchy on smaller touch screens, such as iPhone XR. */
+@media (max-width:767px) and (pointer:coarse){
+  .weather-card{
+    width:clamp(150px,42vw,178px) !important;
+    min-height:clamp(175px,27vh,205px) !important;
+    padding:13px 14px 12px !important;
+    margin-top:18px !important;
+    margin-right:14px !important;
+    border-radius:20px !important;
+  }
+  .weather-location{gap:4px !important;font-size:11px !important}
+  .weather-location svg{width:12px !important;height:12px !important}
+  .weather-main{margin-top:9px !important}
+  .weather-temp{font-size:40px !important}
+  .weather-temp span{font-size:18px !important;margin-left:2px !important}
+  .weather-condition-row{margin-top:7px !important;gap:4px !important;font-size:11px !important}
+  .weather-emoji{font-size:12px !important}
+  .weather-high-low{margin-top:5px !important;font-size:10px !important}
+  .weather-time{margin-top:12px !important;gap:3px !important;font-size:40px !important}
+  .clock-period{font-size:11px !important;padding-bottom:2px !important}
+  .weather-date{
+    width:100% !important;
+    box-sizing:border-box !important;
+    margin-top:8px !important;
+    padding-top:0 !important;
+    border-top:0 !important;
+    font-size:10px !important;
+    text-align:right !important;
   }
 }
