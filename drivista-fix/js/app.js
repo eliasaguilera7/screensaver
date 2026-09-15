@@ -1028,7 +1028,10 @@
   const weatherCondition = $('#weatherCondition');
   const weatherEmoji = $('#weatherEmoji');
   const weatherHighLow = $('#weatherHighLow');
+  const weatherMain = $('.weather-main');
+  const WEATHER_CACHE_KEY = 'drivista:last-successful-weather';
   let weatherTimezone = CONFIG.fallbackTimezone;
+  let hasWeatherData = false;
   let activeCoordinates = {
     latitude: CONFIG.fallbackLatitude,
     longitude: CONFIG.fallbackLongitude
@@ -1096,7 +1099,47 @@
     weatherHighLow.textContent = 'H:--°F · L:--°F';
   }
 
+  function renderWeather(data) {
+    const currentTemp = Number.isFinite(data.currentTemp) ? Math.round(data.currentTemp) : NaN;
+    const high = Number.isFinite(data.high) ? Math.round(data.high) : NaN;
+    const low = Number.isFinite(data.low) ? Math.round(data.low) : NaN;
+
+    weatherTemp.innerHTML = `${currentTemp}<span>°</span>`;
+    weatherEmoji.textContent = weatherCodeEmoji(data.code);
+    weatherCondition.textContent = weatherCodeLabel(data.code);
+    weatherHighLow.textContent =
+      Number.isFinite(high) && Number.isFinite(low)
+        ? `H:${high}°F · L:${low}°F`
+        : 'Today';
+    hasWeatherData = true;
+  }
+
+  function loadCachedWeather() {
+    try {
+      const cached = JSON.parse(localStorage.getItem(WEATHER_CACHE_KEY) || 'null');
+      if (!cached || !Number.isFinite(cached.currentTemp)) return false;
+      if (typeof cached.timezone === 'string' && cached.timezone.trim()) {
+        weatherTimezone = cached.timezone;
+        updateClock();
+      }
+      renderWeather(cached);
+      return true;
+    } catch (error) {
+      console.warn('Cached weather could not be used.', error);
+      return false;
+    }
+  }
+
+  function cacheWeather(data) {
+    try {
+      localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.warn('Weather could not be cached.', error);
+    }
+  }
+
   async function updateWeather(latitude, longitude) {
+    weatherMain.classList.add('is-loading');
     try {
       const params = new URLSearchParams({
         latitude: String(latitude),
@@ -1123,16 +1166,13 @@
 
       if (!Number.isFinite(currentTemp)) throw new Error('Weather temperature missing.');
 
-      weatherTemp.innerHTML = `${currentTemp}<span>°</span>`;
-      weatherEmoji.textContent = weatherCodeEmoji(code);
-      weatherCondition.textContent = weatherCodeLabel(code);
-      weatherHighLow.textContent =
-        Number.isFinite(high) && Number.isFinite(low)
-          ? `H:${high}°F · L:${low}°F`
-          : 'Today';
+      renderWeather({ currentTemp, high, low, code, timezone: data.timezone });
+      cacheWeather({ currentTemp, high, low, code, timezone: data.timezone });
     } catch (error) {
       console.warn('Weather could not be loaded.', error);
-      setWeatherFallback();
+      if (!hasWeatherData) setWeatherFallback();
+    } finally {
+      weatherMain.classList.remove('is-loading');
     }
   }
 
@@ -1202,6 +1242,7 @@
   }
 
   clockLocation.textContent = CONFIG.defaultLocation;
+  loadCachedWeather();
   updateWeather(CONFIG.fallbackLatitude, CONFIG.fallbackLongitude);
   requestDeviceLocation();
 

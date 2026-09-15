@@ -53,7 +53,7 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11Z"/><circle cx="12" cy="10" r="2.2"/></svg>
             <span id="clockLocation">The Crossings</span>
           </div>
-          <div class="weather-main">
+          <div class="weather-main" aria-live="polite">
             <div class="weather-temperature-row">
               <strong id="weatherTemp" class="weather-temp">--<span>°</span></strong>
             </div>
@@ -62,6 +62,7 @@
               <span id="weatherCondition">Weather</span>
             </div>
             <div id="weatherHighLow" class="weather-high-low">H:--°F · L:--°F</div>
+            <span class="weather-loading" aria-hidden="true"></span>
           </div>
           <time id="clockTime" class="weather-time">
             <span id="clockTimeMain">--:--</span><span id="clockPeriod" class="clock-period"></span>

@@ -5174,30 +5174,30 @@ body{
 /* iPad in the limousine: keep the weather useful without competing with the ride UI. */
 @media (min-width:768px) and (max-width:1366px) and (pointer:coarse){
   .weather-card{
-    width:clamp(190px,20vw,215px) !important;
-    min-height:clamp(220px,29vh,245px) !important;
-    padding:17px 18px 16px !important;
-    margin-top:clamp(22px,3vw,32px) !important;
-    margin-right:clamp(16px,2.5vw,26px) !important;
-    border-radius:24px !important;
+    width:clamp(165px,17vw,185px) !important;
+    min-height:clamp(190px,25vh,215px) !important;
+    padding:14px 15px 13px !important;
+    margin-top:clamp(18px,2.5vw,28px) !important;
+    margin-right:clamp(14px,2vw,22px) !important;
+    border-radius:30px !important;
   }
-  .weather-location{gap:5px !important;font-size:15px !important}
-  .weather-location svg{width:15px !important;height:15px !important}
-  .weather-main{margin-top:13px !important}
-  .weather-temp{font-size:54px !important}
-  .weather-temp span{font-size:25px !important;margin-left:2px !important}
-  .weather-condition-row{margin-top:10px !important;gap:5px !important;font-size:15px !important}
-  .weather-emoji{font-size:15px !important}
-  .weather-high-low{margin-top:7px !important;font-size:12px !important}
-  .weather-time{margin-top:17px !important;gap:4px !important;font-size:54px !important}
-  .clock-period{font-size:15px !important;padding-bottom:2px !important}
+  .weather-location{gap:5px !important;font-size:17px !important}
+  .weather-location svg{width:16px !important;height:16px !important}
+  .weather-main{margin-top:10px !important}
+  .weather-temp{font-size:45px !important}
+  .weather-temp span{font-size:21px !important;margin-left:2px !important}
+  .weather-condition-row{margin-top:8px !important;gap:5px !important;font-size:17px !important}
+  .weather-emoji{font-size:16px !important}
+  .weather-high-low{margin-top:6px !important;font-size:13px !important}
+  .weather-time{margin-top:14px !important;gap:3px !important;font-size:45px !important}
+  .clock-period{font-size:17px !important;padding-bottom:2px !important}
   .weather-date{
     width:100% !important;
     box-sizing:border-box !important;
     margin-top:11px !important;
     padding-top:0 !important;
     border-top:0 !important;
-    font-size:12px !important;
+    font-size:13px !important;
     letter-spacing:.02em !important;
     text-align:right !important;
   }
@@ -5206,30 +5206,47 @@ body{
 /* Keep the same compact hierarchy on smaller touch screens, such as iPhone XR. */
 @media (max-width:767px) and (pointer:coarse){
   .weather-card{
-    width:clamp(150px,42vw,178px) !important;
-    min-height:clamp(175px,27vh,205px) !important;
-    padding:13px 14px 12px !important;
-    margin-top:18px !important;
-    margin-right:14px !important;
-    border-radius:20px !important;
+    width:clamp(128px,35vw,150px) !important;
+    min-height:clamp(150px,23vh,175px) !important;
+    padding:11px 12px 10px !important;
+    margin-top:14px !important;
+    margin-right:10px !important;
+    border-radius:22px !important;
   }
-  .weather-location{gap:4px !important;font-size:11px !important}
+  .weather-location{gap:4px !important;font-size:13px !important}
   .weather-location svg{width:12px !important;height:12px !important}
-  .weather-main{margin-top:9px !important}
-  .weather-temp{font-size:40px !important}
-  .weather-temp span{font-size:18px !important;margin-left:2px !important}
-  .weather-condition-row{margin-top:7px !important;gap:4px !important;font-size:11px !important}
+  .weather-main{margin-top:7px !important}
+  .weather-temp{font-size:34px !important}
+  .weather-temp span{font-size:15px !important;margin-left:1px !important}
+  .weather-condition-row{margin-top:5px !important;gap:4px !important;font-size:13px !important}
   .weather-emoji{font-size:12px !important}
-  .weather-high-low{margin-top:5px !important;font-size:10px !important}
-  .weather-time{margin-top:12px !important;gap:3px !important;font-size:40px !important}
-  .clock-period{font-size:11px !important;padding-bottom:2px !important}
+  .weather-high-low{margin-top:4px !important;font-size:11px !important}
+  .weather-time{margin-top:10px !important;gap:2px !important;font-size:34px !important}
+  .clock-period{font-size:13px !important;padding-bottom:1px !important}
   .weather-date{
     width:100% !important;
     box-sizing:border-box !important;
     margin-top:8px !important;
     padding-top:0 !important;
     border-top:0 !important;
-    font-size:10px !important;
+    font-size:11px !important;
     text-align:right !important;
   }
 }
+
+/* Weather data loading indicator: the clock and date remain immediately usable. */
+.weather-main{position:relative}
+.weather-loading{
+  display:none;
+  position:absolute;
+  right:0;
+  bottom:-14px;
+  width:9px;
+  height:9px;
+  border:1px solid rgba(255,255,255,.35);
+  border-top-color:rgba(255,255,255,.9);
+  border-radius:50%;
+  animation:weather-spin .8s linear infinite;
+}
+.weather-main.is-loading .weather-loading{display:block}
+@keyframes weather-spin{to{transform:rotate(360deg)}}
