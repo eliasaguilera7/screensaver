@@ -5206,27 +5206,28 @@ body{
 /* Keep the same compact hierarchy on smaller touch screens, such as iPhone XR. */
 @media (max-width:767px) and (pointer:coarse){
   .weather-card{
-    width:clamp(128px,35vw,150px) !important;
-    min-height:clamp(150px,23vh,175px) !important;
-    padding:11px 12px 10px !important;
+    width:clamp(140px,37vw,160px) !important;
+    min-height:clamp(160px,24vh,185px) !important;
+    box-sizing:border-box !important;
+    padding:13px 15px 12px !important;
     margin-top:14px !important;
     margin-right:10px !important;
     border-radius:22px !important;
   }
   .weather-location{gap:4px !important;font-size:13px !important}
   .weather-location svg{width:12px !important;height:12px !important}
-  .weather-main{margin-top:7px !important}
+  .weather-main{margin-top:9px !important}
   .weather-temp{font-size:34px !important}
   .weather-temp span{font-size:15px !important;margin-left:1px !important}
-  .weather-condition-row{margin-top:5px !important;gap:4px !important;font-size:13px !important}
+  .weather-condition-row{margin-top:7px !important;gap:4px !important;font-size:13px !important}
   .weather-emoji{font-size:12px !important}
-  .weather-high-low{margin-top:4px !important;font-size:11px !important}
-  .weather-time{margin-top:10px !important;gap:2px !important;font-size:34px !important}
+  .weather-high-low{margin-top:5px !important;font-size:11px !important}
+  .weather-time{margin-top:12px !important;gap:2px !important;font-size:34px !important}
   .clock-period{font-size:13px !important;padding-bottom:1px !important}
   .weather-date{
     width:100% !important;
     box-sizing:border-box !important;
-    margin-top:8px !important;
+    margin-top:9px !important;
     padding-top:0 !important;
     border-top:0 !important;
     font-size:11px !important;
