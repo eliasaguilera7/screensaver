@@ -5019,6 +5019,19 @@ input,select,button,a{touch-action:manipulation}
 .distortion-canvas{
   display:none !important;
 }
+.uses-rhye-distortion .distortion-canvas{
+  display:block !important;
+  z-index:1 !important;
+  transform-origin:center center;
+  will-change:transform;
+}
+.rhye-texture-video{
+  position:absolute;
+  width:1px;
+  height:1px;
+  opacity:0;
+  pointer-events:none;
+}
 
 .media-layer{
   position:absolute !important;

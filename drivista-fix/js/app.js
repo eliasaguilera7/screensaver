@@ -148,7 +148,8 @@
 
   const MEDIA_ITEMS = await discoverMediaSlots();
   const SLIDE_IMAGE_URLS = MEDIA_ITEMS.filter((item) => item.type === 'image').map((item) => item.url);
-  const DISPLACEMENT_IMAGE_URL = SLIDE_IMAGE_URLS[0] || '';
+  // RHYE's original displacement map used by its wavy image transitions.
+  const DISPLACEMENT_IMAGE_URL = 'RHYE%20%20Template/HTML/img/general/bg-displacement-7.jpg';
 
   function rebuildDots(items) {
     if (!dotsContainer) return;
@@ -171,21 +172,28 @@
   }
 
   rebuildDots(MEDIA_ITEMS);
-  const TRANSITION_DURATION_MS = 1500;
-  const TRANSITION_EASE = 'power3.out';  
+  const TRANSITION_DURATION_MS = 1200;
+  const TRANSITION_EASE = 'power2.inOut';
   const EFFECT_FACTOR = 0.2;
 
-  function easePower3Out(t) {
-    return 1 - Math.pow(1 - t, 3);
+  function easePower2InOut(t) {
+    return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
   }
 
-  function createDistortionSlider() {
+  function createDistortionSlider(items) {
     const canvas = $('#distortionCanvas');
     const container = $('.background-slider');
     if (!canvas || !container || typeof THREE === 'undefined') return null;
 
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, alpha: false, antialias: false });
+    } catch (error) {
+      console.warn('RHYE distortion could not create a WebGL renderer.', error);
+      return null;
+    }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    renderer.setClearColor(0x060708, 1);
 
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -265,8 +273,10 @@
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
-    function aspectOf(image) {
-      return image && image.width && image.height ? image.width / image.height : 1;
+    function aspectOf(source) {
+      const width = source?.videoWidth || source?.naturalWidth || source?.width;
+      const height = source?.videoHeight || source?.naturalHeight || source?.height;
+      return width && height ? width / height : 1;
     }
 
     function resize() {
@@ -281,49 +291,110 @@
       renderer.render(scene, camera);
     }
 
-    const textures = [];
-    let loadedCount = 0;
+    const entries = items.map((item) => ({ item, texture: null, source: null, ready: false }));
+    let activeIndex = 0;
+    let transitioning = false;
+    let animationFrame = null;
 
-    SLIDE_IMAGE_URLS.forEach((url, index) => {
-      textureLoader.load(url, (tex) => {
-        tex.minFilter = THREE.LinearFilter;
-        tex.magFilter = THREE.LinearFilter;
-        textures[index] = tex;
-        loadedCount += 1;
+    function configureTexture(texture) {
+      texture.minFilter = THREE.LinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      texture.generateMipmaps = false;
+      return texture;
+    }
 
-        if (index === 0) {
-          uniforms.texture1.value = tex;
-          uniforms.texture2.value = tex;
-          uniforms.texture1Aspect.value = aspectOf(tex.image);
-          uniforms.texture2Aspect.value = aspectOf(tex.image);
-        }
+    function renderFrame() {
+      animationFrame = null;
+      renderOnce();
+      const activeVideo = entries[activeIndex]?.source?.tagName === 'VIDEO';
+      if (transitioning || activeVideo) animationFrame = requestAnimationFrame(renderFrame);
+    }
 
-        if (loadedCount === 1 && uniforms.texture1.value) {
-          resize();
-        }
-      });
+    function ensureRendering() {
+      if (animationFrame === null) animationFrame = requestAnimationFrame(renderFrame);
+    }
+
+    function showInitialEntry(index) {
+      if (uniforms.texture1.value || !entries[index]?.ready) return;
+      const entry = entries[index];
+      activeIndex = index;
+      uniforms.texture1.value = entry.texture;
+      uniforms.texture2.value = entry.texture;
+      uniforms.texture1Aspect.value = aspectOf(entry.source);
+      uniforms.texture2Aspect.value = aspectOf(entry.source);
+      if (entry.source?.tagName === 'VIDEO') entry.source.play().catch(() => {});
+      resize();
+      ensureRendering();
+    }
+
+    entries.forEach((entry, index) => {
+      if (entry.item.type === 'video') {
+        const video = document.createElement('video');
+        video.className = 'rhye-texture-video';
+        video.muted = true;
+        video.loop = true;
+        video.playsInline = true;
+        video.preload = 'auto';
+        video.setAttribute('muted', '');
+        video.setAttribute('playsinline', '');
+        video.addEventListener('loadeddata', () => {
+          entry.source = video;
+          entry.texture = configureTexture(new THREE.VideoTexture(video));
+          entry.ready = true;
+          showInitialEntry(index);
+        }, { once: true });
+        video.addEventListener('error', () => {
+          entry.item.failed = true;
+        }, { once: true });
+        video.src = entry.item.url;
+        container.appendChild(video);
+        video.load();
+      } else {
+        textureLoader.load(entry.item.url, (texture) => {
+          entry.source = texture.image;
+          entry.texture = configureTexture(texture);
+          entry.ready = true;
+          showInitialEntry(index);
+        }, undefined, () => {
+          entry.item.failed = true;
+        });
+      }
     });
 
     window.addEventListener('resize', resize);
 
-    let activeIndex = 0;
-    let transitioning = false;
-
     function goTo(nextIndex, onComplete) {
-      if (transitioning || nextIndex === activeIndex || !textures[nextIndex]) return false;
+      const nextEntry = entries[nextIndex];
+      if (transitioning || nextIndex === activeIndex || !nextEntry?.ready || !uniforms.texture1.value) return false;
       transitioning = true;
 
-      uniforms.texture2.value = textures[nextIndex];
-      uniforms.texture2Aspect.value = aspectOf(textures[nextIndex].image);
+      const previousEntry = entries[activeIndex];
+      if (nextEntry.source?.tagName === 'VIDEO') {
+        nextEntry.source.currentTime = 0;
+        nextEntry.source.play().catch(() => {});
+      }
+
+      uniforms.texture2.value = nextEntry.texture;
+      uniforms.texture2Aspect.value = aspectOf(nextEntry.source);
       uniforms.dispFactor.value = 0;
+      canvas.style.transition = `transform ${TRANSITION_DURATION_MS}ms cubic-bezier(.22,.61,.36,1)`;
+      canvas.style.transform = 'scale(1.05)';
+      ensureRendering();
 
       const finish = () => {
-        uniforms.texture1.value = textures[nextIndex];
-        uniforms.texture1Aspect.value = aspectOf(textures[nextIndex].image);
+        if (previousEntry.source?.tagName === 'VIDEO') {
+          previousEntry.source.pause();
+          previousEntry.source.currentTime = 0;
+        }
+        uniforms.texture1.value = nextEntry.texture;
+        uniforms.texture1Aspect.value = aspectOf(nextEntry.source);
         uniforms.dispFactor.value = 0;
         activeIndex = nextIndex;
         transitioning = false;
+        canvas.style.transitionDuration = `${TRANSITION_DURATION_MS * 2}ms`;
+        canvas.style.transform = 'scale(1)';
         renderOnce();
+        ensureRendering();
         if (typeof onComplete === 'function') onComplete(nextIndex);
       };
 
@@ -335,8 +406,7 @@
       const start = performance.now();
       function tick(now) {
         const t = Math.min(1, (now - start) / TRANSITION_DURATION_MS);
-        uniforms.dispFactor.value = easePower3Out(t);
-        renderOnce();
+        uniforms.dispFactor.value = easePower2InOut(t);
         if (t < 1) requestAnimationFrame(tick);
         else finish();
       }
@@ -347,7 +417,8 @@
     return {
       goTo,
       get activeIndex() { return activeIndex; },
-      get slideCount() { return SLIDE_IMAGE_URLS.length; }
+      get slideCount() { return items.length; },
+      get isTransitioning() { return transitioning; }
     };
   }
 
@@ -594,7 +665,10 @@
     };
   }
 
-  const distortionSlider = createMediaSlider(MEDIA_ITEMS);
+  const canUseRhyeDistortion = MEDIA_ITEMS.length > 1 && typeof THREE === 'object';
+  const rhyeDistortionSlider = canUseRhyeDistortion ? createDistortionSlider(MEDIA_ITEMS) : null;
+  document.body.classList.toggle('uses-rhye-distortion', Boolean(rhyeDistortionSlider));
+  const distortionSlider = rhyeDistortionSlider || createMediaSlider(MEDIA_ITEMS);
   const RHYE_AUTOPLAY_MS = 11000;
   const RHYE_DELAY_SECONDS = RHYE_AUTOPLAY_MS / 1000;
   let logicalSlideIndex = 0;
